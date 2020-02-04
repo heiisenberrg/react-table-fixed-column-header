@@ -1,0 +1,53 @@
+{
+  "name": "react-table-fixed-column-header",
+  "version": "1.1.1",
+  "description": "React table with fixed first column and sticky header and virtualization and infinite scroll",
+  "main": "build/index.js",
+  "scripts": {
+    "start": "webpack --watch",
+    "build": "webpack"
+  },
+  "dependencies": {
+    "react": "^16.12.0",
+    "webpack": "^2.6.1",
+    "prop-types": "^15.7.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-env": "^1.5.1",
+    "css-loader": "^2.1.0",
+    "style-loader": "^0.23.1"
+  },
+  "keywords": [
+    "react",
+    "table",
+    "sticky header",
+    "fixed header",
+    "fixed column"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heiisenberrg/react-table-fixed-column-header.git"
+  },
+  "author": {
+    "name": "Ajaykkumar Rajendran",
+    "email": "ajaykkumar.rajen@gmail.com"
+  },
+  "license": "MIT",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

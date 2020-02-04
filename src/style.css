@@ -1,0 +1,123 @@
+.fixed-column {
+  float: left;
+  border-bottom-left-radius: 10px;
+  border-top-left-radius: 10px;
+  box-shadow: -1px 0px 6px -1px #E3E2EE;
+}
+
+.fixed-column > .fc-heading {
+  width: 150px;
+  text-align: center;
+  padding: 1rem;
+  border-bottom: 0.25px solid #E3E2EE;
+}
+
+.fixed-column > .fc-body {
+  height: 500px;
+  box-sizing: border-box;
+  overflow: hidden;
+  box-shadow: 0px 0px 3px -1px #E3E2EE;
+}
+
+.fixed-column > .fc-body > .fc-row {
+  width: 150px;
+  display: flex;
+  justify-content: center;
+  word-break: break-all;
+  padding: 1rem;
+  border-bottom: 0.25px solid #E3E2EE;
+}
+
+.scrollable-columns {
+  width: 800px;
+  margin-left: 182px;
+  border-bottom-right-radius: 10px;
+  border-top-right-radius: 10px;
+  box-shadow: 2px 0px 6px -1px #E3E2EE;
+}
+
+.scrollable-columns > .sc-heading {
+  display: -webkit-box;
+  flex-direction: row;
+  overflow: hidden;
+  border-bottom: 0.25px solid #E3E2EE;
+}
+
+.scrollable-columns > .sc-heading > .sc-head {
+  width: 150px;
+  text-align: center;
+  padding: 1rem;
+}
+
+.scrollable-columns > .sc-body {
+  height: 500px;
+  box-sizing: border-box;
+  overflow: auto;
+  box-shadow: 0px 0px 3px -1px #E3E2EE;
+}
+
+.scrollable-columns > .sc-body > .sc-row {
+  display: -webkit-box;
+  flex-direction: row;
+}
+
+.scrollable-columns > .sc-body > .sc-row > .sc-row-content {
+  width: 150px;
+  padding: 1rem;
+  border-bottom: 0.25px solid #E3E2EE;
+}
+
+p {
+  white-space: nowrap;
+  margin: 0;
+  flex: auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+}
+
+::-webkit-scrollbar {
+  width: 3px;
+  height: 0px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #E3E2EE;
+}
+
+.skeleton-root {
+  height: 1.2em;
+  display: block;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.skeleton-text {
+  width: 150px;
+  height: auto;
+  transform: scale(1, 0.60);
+  margin-top: 0;
+  border-radius: 4px;
+  margin-bottom: 0;
+  transform-origin: 0 60%;
+}
+
+.skeleton-text:empty:before {
+  content: "\00a0";
+}
+
+.skeleton-pulse {
+  animation: skeleton-keyframes-pulse 1.5s ease-in-out 0.5s infinite;
+}
+
+@keyframes skeleton-keyframes-pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
