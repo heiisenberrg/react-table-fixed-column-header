@@ -446,9 +446,26 @@ var ReactTable = function (_React$PureComponent) {
       var _props = this.props,
           rowsLimit = _props.rowsLimit,
           data = _props.data,
-          isVirtualScroll = _props.isVirtualScroll;
+          isVirtualScroll = _props.isVirtualScroll,
+          columns = _props.columns;
 
-      this.setState({ limit: rowsLimit, rowData: isVirtualScroll ? data.slice(0, rowsLimit ? rowsLimit : 10) : data });
+      var fixedColumns = [];
+      var scrollableColumns = [];
+      columns && columns.length > 0 && columns.map(function (column, index) {
+        if (column.position === 'left') {
+          fixedColumns.push(column);
+        } else if (column.position === 'right') {
+          scrollableColumns.push(column);
+        } else {
+          scrollableColumns.push(column);
+        }
+      });
+      this.setState({
+        limit: rowsLimit,
+        fixedColumns: fixedColumns,
+        scrollableColumns: scrollableColumns,
+        rowData: isVirtualScroll ? data.slice(0, rowsLimit ? rowsLimit : 10) : data
+      });
       document.querySelector(".scrollable-columns > .sc-body").addEventListener("scroll", function () {
         var parent = document.querySelector(".scrollable-columns > .sc-body");
         document.querySelector(".fixed-column > .fc-body").scrollTop = parent.scrollTop;
@@ -463,9 +480,10 @@ var ReactTable = function (_React$PureComponent) {
     value: function render() {
       var _state = this.state,
           loading = _state.loading,
-          rowData = _state.rowData;
+          rowData = _state.rowData,
+          fixedColumns = _state.fixedColumns,
+          scrollableColumns = _state.scrollableColumns;
       var _props2 = this.props,
-          columns = _props2.columns,
           fixedColWidth = _props2.fixedColWidth,
           scrollableColWidth = _props2.scrollableColWidth;
 
@@ -474,15 +492,21 @@ var ReactTable = function (_React$PureComponent) {
         null,
         _react2.default.createElement(
           'div',
-          { className: 'fixed-column' },
+          { className: 'fixed-column', style: { width: fixedColWidth ? fixedColWidth + 32 : 150 } },
           _react2.default.createElement(
             'div',
-            { className: 'fc-heading', style: { width: fixedColWidth ? fixedColWidth : 150 } },
-            columns && columns.length > 0 && _react2.default.createElement(
-              'span',
-              null,
-              columns[0].header
-            )
+            { className: 'fc-heading' },
+            fixedColumns && fixedColumns.length > 0 && fixedColumns.map(function (fixedCol, indx) {
+              return _react2.default.createElement(
+                'div',
+                { key: 'fixed-col-index' + indx, className: 'fc-head', style: { width: fixedColWidth ? fixedColWidth / fixedColumns.length : 150 } },
+                _react2.default.createElement(
+                  'p',
+                  null,
+                  fixedCol.header
+                )
+              );
+            })
           ),
           _react2.default.createElement(
             'div',
@@ -490,14 +514,30 @@ var ReactTable = function (_React$PureComponent) {
             rowData && rowData.length > 0 && rowData.map(function (dataObj, index) {
               return _react2.default.createElement(
                 'div',
-                { key: 'fc-value-' + index, className: 'fc-row', style: { width: fixedColWidth ? fixedColWidth : 150 } },
-                dataObj[columns[0].accessor]
+                { key: 'fc-row-' + index, className: 'fc-row' },
+                fixedColumns.map(function (fixedCol, indx) {
+                  return _react2.default.createElement(
+                    'div',
+                    { key: 'fc-value-' + index + indx, className: 'fc-row-content', style: { width: fixedColWidth ? fixedColWidth / fixedColumns.length : 150 } },
+                    _react2.default.createElement(
+                      'p',
+                      null,
+                      dataObj[fixedCol.accessor]
+                    )
+                  );
+                })
               );
             }),
             loading && _react2.default.createElement(
               'div',
-              { className: 'fc-row', key: 'fc-loading', style: { width: fixedColWidth ? fixedColWidth : 150 } },
-              _react2.default.createElement('span', { className: 'skeleton-root skeleton-text skeleton-pulse' })
+              { className: 'fc-row' },
+              fixedColumns.map(function (column, indx) {
+                return _react2.default.createElement(
+                  'div',
+                  { key: 'fc-loading-' + indx, className: 'fc-row-content', style: { width: fixedColWidth ? fixedColWidth / fixedColumns.length : 150 } },
+                  _react2.default.createElement('p', { className: 'skeleton-root skeleton-text skeleton-pulse' })
+                );
+              })
             )
           )
         ),
@@ -507,18 +547,16 @@ var ReactTable = function (_React$PureComponent) {
           _react2.default.createElement(
             'div',
             { className: 'sc-heading' },
-            columns && columns.length > 0 && columns.map(function (column, index) {
-              if (index !== 0) {
-                return _react2.default.createElement(
-                  'div',
-                  { key: 'sc-head-value-' + index, className: 'sc-head', style: { width: scrollableColWidth ? scrollableColWidth / 6 : 150 } },
-                  _react2.default.createElement(
-                    'p',
-                    null,
-                    column.header
-                  )
-                );
-              }
+            scrollableColumns && scrollableColumns.length > 0 && scrollableColumns.map(function (column, index) {
+              return _react2.default.createElement(
+                'div',
+                { key: 'sc-head-value-' + index, className: 'sc-head', style: { width: scrollableColWidth ? scrollableColWidth / 6 : 150 } },
+                _react2.default.createElement(
+                  'p',
+                  null,
+                  column.header
+                )
+              );
             })
           ),
           _react2.default.createElement(
@@ -528,32 +566,28 @@ var ReactTable = function (_React$PureComponent) {
               return _react2.default.createElement(
                 'div',
                 { key: 'sc-row-' + index, className: 'sc-row' },
-                columns.map(function (column, indx) {
-                  if (indx !== 0) {
-                    return _react2.default.createElement(
-                      'div',
-                      { key: 'sc-value-' + index + indx, className: 'sc-row-content', style: { width: scrollableColWidth ? scrollableColWidth / 6 : 150 } },
-                      _react2.default.createElement(
-                        'p',
-                        null,
-                        dataObj[column.accessor]
-                      )
-                    );
-                  }
+                scrollableColumns.map(function (column, indx) {
+                  return _react2.default.createElement(
+                    'div',
+                    { key: 'sc-value-' + index + indx, className: 'sc-row-content', style: { width: scrollableColWidth ? scrollableColWidth / 6 : 150 } },
+                    _react2.default.createElement(
+                      'p',
+                      null,
+                      dataObj[column.accessor]
+                    )
+                  );
                 })
               );
             }),
             loading && _react2.default.createElement(
               'div',
               { className: 'sc-row' },
-              columns.map(function (column, indx) {
-                if (indx !== 0) {
-                  return _react2.default.createElement(
-                    'div',
-                    { key: 'sc-loading-' + indx, className: 'sc-row-content', style: { width: scrollableColWidth ? scrollableColWidth / 6 : 150 } },
-                    _react2.default.createElement('p', { className: 'skeleton-root skeleton-text skeleton-pulse' })
-                  );
-                }
+              scrollableColumns.map(function (column, indx) {
+                return _react2.default.createElement(
+                  'div',
+                  { key: 'sc-loading-' + indx, className: 'sc-row-content', style: { width: scrollableColWidth ? scrollableColWidth / 6 : 150 } },
+                  _react2.default.createElement('p', { className: 'skeleton-root skeleton-text skeleton-pulse' })
+                );
               })
             )
           )
@@ -595,7 +629,7 @@ exports.default = ReactTable;
 
 exports = module.exports = __webpack_require__(8)(false);
 // Module
-exports.push([module.i, ".fixed-column {\r\n  float: left;\r\n  border-bottom-left-radius: 10px;\r\n  border-top-left-radius: 10px;\r\n  box-shadow: -1px 0px 6px -1px #E3E2EE;\r\n}\r\n\r\n.fixed-column > .fc-heading {\r\n  width: 150px;\r\n  text-align: center;\r\n  padding: 1rem;\r\n  border-bottom: 0.25px solid #E3E2EE;\r\n}\r\n\r\n.fixed-column > .fc-body {\r\n  height: 500px;\r\n  box-sizing: border-box;\r\n  overflow: hidden;\r\n  box-shadow: 0px 0px 3px -1px #E3E2EE;\r\n}\r\n\r\n.fixed-column > .fc-body > .fc-row {\r\n  width: 150px;\r\n  display: flex;\r\n  justify-content: center;\r\n  word-break: break-all;\r\n  padding: 1rem;\r\n  border-bottom: 0.25px solid #E3E2EE;\r\n}\r\n\r\n.scrollable-columns {\r\n  width: 800px;\r\n  margin-left: 182px;\r\n  border-bottom-right-radius: 10px;\r\n  border-top-right-radius: 10px;\r\n  box-shadow: 2px 0px 6px -1px #E3E2EE;\r\n}\r\n\r\n.scrollable-columns > .sc-heading {\r\n  display: -webkit-box;\r\n  flex-direction: row;\r\n  overflow: hidden;\r\n  border-bottom: 0.25px solid #E3E2EE;\r\n}\r\n\r\n.scrollable-columns > .sc-heading > .sc-head {\r\n  width: 150px;\r\n  text-align: center;\r\n  padding: 1rem;\r\n}\r\n\r\n.scrollable-columns > .sc-body {\r\n  height: 500px;\r\n  box-sizing: border-box;\r\n  overflow: auto;\r\n  box-shadow: 0px 0px 3px -1px #E3E2EE;\r\n}\r\n\r\n.scrollable-columns > .sc-body > .sc-row {\r\n  display: '-webkit-box';\r\n  flex-direction: row;\r\n}\r\n\r\n.scrollable-columns > .sc-body > .sc-row > .sc-row-content {\r\n  width: 150px;\r\n  padding: 1rem;\r\n  border-bottom: 0.25px solid #E3E2EE;\r\n}\r\n\r\np {\r\n  white-space: nowrap;\r\n  margin: 0;\r\n  flex: auto;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  text-align: center;\r\n}\r\n\r\n::-webkit-scrollbar {\r\n  width: 3px;\r\n  height: 0px;\r\n  background: transparent;\r\n}\r\n\r\n::-webkit-scrollbar-thumb {\r\n  background: #E3E2EE;\r\n}\r\n\r\n.skeleton-root {\r\n  height: 1.2em;\r\n  display: block;\r\n  background-color: rgba(0, 0, 0, 0.04);\r\n}\r\n\r\n.skeleton-text {\r\n  width: 150px;\r\n  height: auto;\r\n  transform: scale(1, 0.60);\r\n  margin-top: 0;\r\n  border-radius: 4px;\r\n  margin-bottom: 0;\r\n  transform-origin: 0 60%;\r\n}\r\n\r\n.skeleton-text:empty:before {\r\n  content: \"\\00a0\";\r\n}\r\n\r\n.skeleton-pulse {\r\n  animation: skeleton-keyframes-pulse 1.5s ease-in-out 0.5s infinite;\r\n}\r\n\r\n@keyframes skeleton-keyframes-pulse {\r\n  0% {\r\n    opacity: 1;\r\n  }\r\n  50% {\r\n    opacity: 0.4;\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n  }\r\n}\r\n", ""]);
+exports.push([module.i, ".fixed-column {\r\n  float: left;\r\n  border-bottom-left-radius: 10px;\r\n  border-top-left-radius: 10px;\r\n  box-shadow: -1px 0px 6px -1px #E3E2EE;\r\n}\r\n\r\n.fixed-column > .fc-heading {\r\n  display: -webkit-box;\r\n  flex-direction: row;\r\n  overflow: hidden;\r\n  border-bottom: 0.25px solid #E3E2EE;\r\n}\r\n\r\n.fixed-column > .fc-heading > .fc-head {\r\n  width: 150px;\r\n  text-align: center;\r\n  padding: 1rem;\r\n}\r\n\r\n.fixed-column > .fc-body {\r\n  height: 500px;\r\n  box-sizing: border-box;\r\n  overflow: hidden;\r\n  box-shadow: 0px 0px 3px -1px #E3E2EE;\r\n}\r\n\r\n.fixed-column > .fc-body > .fc-row {\r\n  display: -webkit-box;\r\n  flex-direction: row;\r\n}\r\n\r\n.fixed-column > .fc-body > .fc-row > .fc-row-content {\r\n  width: 150px;\r\n  padding: 1rem;\r\n  border-bottom: 0.25px solid #E3E2EE;\r\n}\r\n\r\n\r\n.scrollable-columns {\r\n  width: 800px;\r\n  margin-left: 182px;\r\n  border-bottom-right-radius: 10px;\r\n  border-top-right-radius: 10px;\r\n  box-shadow: 2px 0px 6px -1px #E3E2EE;\r\n}\r\n\r\n.scrollable-columns > .sc-heading {\r\n  display: -webkit-box;\r\n  flex-direction: row;\r\n  overflow: hidden;\r\n  border-bottom: 0.25px solid #E3E2EE;\r\n}\r\n\r\n.scrollable-columns > .sc-heading > .sc-head {\r\n  width: 150px;\r\n  text-align: center;\r\n  padding: 1rem;\r\n}\r\n\r\n.scrollable-columns > .sc-body {\r\n  height: 500px;\r\n  box-sizing: border-box;\r\n  overflow: auto;\r\n  box-shadow: 0px 0px 3px -1px #E3E2EE;\r\n}\r\n\r\n.scrollable-columns > .sc-body > .sc-row {\r\n  display: -webkit-box;\r\n  flex-direction: row;\r\n}\r\n\r\n.scrollable-columns > .sc-body > .sc-row > .sc-row-content {\r\n  width: 150px;\r\n  padding: 1rem;\r\n  border-bottom: 0.25px solid #E3E2EE;\r\n}\r\n\r\np {\r\n  white-space: nowrap;\r\n  margin: 0;\r\n  flex: auto;\r\n  overflow: hidden;\r\n  text-overflow: ellipsis;\r\n  text-align: center;\r\n}\r\n\r\n::-webkit-scrollbar {\r\n  width: 3px;\r\n  height: 0px;\r\n  background: transparent;\r\n}\r\n\r\n::-webkit-scrollbar-thumb {\r\n  background: #E3E2EE;\r\n}\r\n\r\n.skeleton-root {\r\n  height: 1.2em;\r\n  display: block;\r\n  background-color: rgba(0, 0, 0, 0.04);\r\n}\r\n\r\n.skeleton-text {\r\n  width: 150px;\r\n  height: auto;\r\n  transform: scale(1, 0.60);\r\n  margin-top: 0;\r\n  border-radius: 4px;\r\n  margin-bottom: 0;\r\n  transform-origin: 0 60%;\r\n}\r\n\r\n.skeleton-text:empty:before {\r\n  content: \"\\00a0\";\r\n}\r\n\r\n.skeleton-pulse {\r\n  animation: skeleton-keyframes-pulse 1.5s ease-in-out 0.5s infinite;\r\n}\r\n\r\n@keyframes skeleton-keyframes-pulse {\r\n  0% {\r\n    opacity: 1;\r\n  }\r\n  50% {\r\n    opacity: 0.4;\r\n  }\r\n  100% {\r\n    opacity: 1;\r\n  }\r\n}\r\n", ""]);
 
 
 

@@ -28,8 +28,24 @@ class ReactTable extends React.PureComponent {
   };
 
   componentDidMount() {
-    const { rowsLimit, data, isVirtualScroll } = this.props;
-    this.setState({ limit: rowsLimit, rowData: isVirtualScroll ? data.slice(0, rowsLimit ? rowsLimit : 10) : data });
+    const { rowsLimit, data, isVirtualScroll, columns } = this.props;
+    let fixedColumns = [];
+    let scrollableColumns = [];
+    columns && columns.length > 0 && columns.map((column, index) => {
+      if (column.position === 'left') {
+        fixedColumns.push(column);
+      } else if (column.position === 'right') {
+        scrollableColumns.push(column);
+      } else {
+        scrollableColumns.push(column);
+      }
+    });
+    this.setState({
+      limit: rowsLimit,
+      fixedColumns,
+      scrollableColumns,
+      rowData: isVirtualScroll ? data.slice(0, rowsLimit ? rowsLimit : 10) : data
+    });
     document.querySelector(".scrollable-columns > .sc-body").addEventListener("scroll", () => {
       let parent = document.querySelector(".scrollable-columns > .sc-body");
       document.querySelector(".fixed-column > .fc-body").scrollTop = parent.scrollTop;
@@ -41,28 +57,48 @@ class ReactTable extends React.PureComponent {
   }
 
   render() {
-    const { loading, rowData } = this.state;
-    const { columns, fixedColWidth, scrollableColWidth } = this.props;
+    const { loading, rowData, fixedColumns, scrollableColumns } = this.state;
+    const { fixedColWidth, scrollableColWidth } = this.props;
     return (
       <div>
-        <div className="fixed-column">
-          <div className="fc-heading" style={{ width: fixedColWidth ? fixedColWidth : 150 }}>
-            {columns && columns.length > 0 && <span>{columns[0].header}</span>}
+        <div className="fixed-column" style={{ width: fixedColWidth ? fixedColWidth + 32 : 150 }}>
+          <div className="fc-heading">
+            {fixedColumns && fixedColumns.length > 0 && fixedColumns.map((fixedCol, indx) => {
+              return (
+                <div key={`fixed-col-index${indx}`} className="fc-head" style={{ width: fixedColWidth ? fixedColWidth / fixedColumns.length : 150 }}>
+                  <p>{fixedCol.header}</p>
+                </div>
+              )
+            })}
           </div>
           <div className="fc-body" style={{ height: this.props.height ? this.props.height : 500 }}>
             {
               rowData && rowData.length > 0 && rowData.map((dataObj, index) => {
                 return (
-                  <div key={`fc-value-${index}`} className="fc-row" style={{ width: fixedColWidth ? fixedColWidth : 150 }}>
-                    {dataObj[columns[0].accessor]}
+                  <div key={`fc-row-${index}`} className="fc-row">
+                    {fixedColumns.map((fixedCol, indx) => {
+                      return (
+                        <div key={`fc-value-${index}${indx}`} className="fc-row-content" style={{ width: fixedColWidth ? fixedColWidth / fixedColumns.length : 150 }}>
+                          <p>{dataObj[fixedCol.accessor]}</p>
+                        </div>
+                      )
+                    })
+                    }
                   </div>
                 )
               })
             }
             {
               loading && (
-                <div className="fc-row" key='fc-loading' style={{ width: fixedColWidth ? fixedColWidth : 150 }}>
-                  <span className="skeleton-root skeleton-text skeleton-pulse"></span>
+                <div className="fc-row">
+                  {fixedColumns.map((column, indx) => {
+                    return (
+                      <div key={`fc-loading-${indx}`} className="fc-row-content" style={{ width: fixedColWidth ? fixedColWidth / fixedColumns.length : 150 }}>
+                        <p className="skeleton-root skeleton-text skeleton-pulse"></p>
+                      </div>
+                    )
+                  })
+                  }
                 </div>
               )
             }
@@ -70,14 +106,12 @@ class ReactTable extends React.PureComponent {
         </div>
         <div className="scrollable-columns" style={{ marginLeft: fixedColWidth ? fixedColWidth + 32 : 182, width: scrollableColWidth ? scrollableColWidth : 800 }}>
           <div className="sc-heading">
-            {columns && columns.length > 0 && columns.map((column, index) => {
-              if (index !== 0) {
-                return (
-                  <div key={`sc-head-value-${index}`} className="sc-head" style={{ width: scrollableColWidth ? scrollableColWidth / 6 : 150 }}>
-                    <p>{column.header}</p>
-                  </div>
-                )
-              }
+            {scrollableColumns && scrollableColumns.length > 0 && scrollableColumns.map((column, index) => {
+              return (
+                <div key={`sc-head-value-${index}`} className="sc-head" style={{ width: scrollableColWidth ? scrollableColWidth / 6 : 150 }}>
+                  <p>{column.header}</p>
+                </div>
+              )
             })
             }
           </div>
@@ -86,14 +120,12 @@ class ReactTable extends React.PureComponent {
               rowData && rowData.length > 0 && rowData.map((dataObj, index) => {
                 return (
                   <div key={`sc-row-${index}`} className="sc-row">
-                    {columns.map((column, indx) => {
-                      if (indx !== 0) {
-                        return (
-                          <div key={`sc-value-${index}${indx}`} className="sc-row-content" style={{ width: scrollableColWidth ? scrollableColWidth / 6 : 150 }}>
-                            <p>{dataObj[column.accessor]}</p>
-                          </div>
-                        )
-                      }
+                    {scrollableColumns.map((column, indx) => {
+                      return (
+                        <div key={`sc-value-${index}${indx}`} className="sc-row-content" style={{ width: scrollableColWidth ? scrollableColWidth / 6 : 150 }}>
+                          <p>{dataObj[column.accessor]}</p>
+                        </div>
+                      )
                     })
                     }
                   </div>
@@ -103,14 +135,12 @@ class ReactTable extends React.PureComponent {
             {
               loading && (
                 <div className="sc-row">
-                  {columns.map((column, indx) => {
-                    if (indx !== 0) {
-                      return (
-                        <div key={`sc-loading-${indx}`} className="sc-row-content" style={{ width: scrollableColWidth ? scrollableColWidth / 6 : 150 }}>
-                          <p className="skeleton-root skeleton-text skeleton-pulse"></p>
-                        </div>
-                      )
-                    }
+                  {scrollableColumns.map((column, indx) => {
+                    return (
+                      <div key={`sc-loading-${indx}`} className="sc-row-content" style={{ width: scrollableColWidth ? scrollableColWidth / 6 : 150 }}>
+                        <p className="skeleton-root skeleton-text skeleton-pulse"></p>
+                      </div>
+                    )
                   })
                   }
                 </div>

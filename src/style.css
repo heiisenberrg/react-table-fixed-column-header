@@ -6,10 +6,16 @@
 }
 
 .fixed-column > .fc-heading {
+  display: -webkit-box;
+  flex-direction: row;
+  overflow: hidden;
+  border-bottom: 0.25px solid #E3E2EE;
+}
+
+.fixed-column > .fc-heading > .fc-head {
   width: 150px;
   text-align: center;
   padding: 1rem;
-  border-bottom: 0.25px solid #E3E2EE;
 }
 
 .fixed-column > .fc-body {
@@ -20,13 +26,16 @@
 }
 
 .fixed-column > .fc-body > .fc-row {
+  display: -webkit-box;
+  flex-direction: row;
+}
+
+.fixed-column > .fc-body > .fc-row > .fc-row-content {
   width: 150px;
-  display: flex;
-  justify-content: center;
-  word-break: break-all;
   padding: 1rem;
   border-bottom: 0.25px solid #E3E2EE;
 }
+
 
 .scrollable-columns {
   width: 800px;
